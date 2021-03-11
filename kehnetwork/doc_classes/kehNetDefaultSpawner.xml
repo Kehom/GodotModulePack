@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehNetDefaultSpawner" inherits="kehNetNodeSpawner" version="3.2">
+	<brief_description>
+		Default node spawner.
+	</brief_description>
+	<description>
+		This rather simple node spawner should be enough for the most needs. A GDScript version of this class could easily look like this:
+		[codeblock]
+		extends kehNetNodeSpawner
+		class_name NetDefaultSpawner
+
+		var scene_class: PackedScene = null
+
+		func spawn() -&gt; Node:
+			return scene_class.instance()
+		
+		func _init(s: PackedScene) -&gt; void:
+			scene_class = s
+		[/codeblock]
+		Registration of the spawner looks like this:
+		[codeblock]
+		var spawner: kehNetDefaultSpawner = kehNetDefaultSpawner.new()
+		spawner.set_scene_class(load("PATH_TO_THE_SCENE"))
+		kehNetwork.snapshot_data.register_spawner(SNAPSHOT_ENTITY_CLASS, CLASS_HASH, spawner, PARENT_NODE, EXTRA_SETUP_FUNCREF)
+		[/codeblock]
+		More information about each of the parameters can be found within the [kehSnapshotData] class.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="spawn">
+			<return type="Node">
+			</return>
+			<description>
+				This function will be internally called whenever a node must be spawned within the game world. It must return the instantiated node.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="scene_class" type="PackedScene" setter="set_scene_class" getter="get_scene_class">
+			Holds the [PackedScene] that will be instantiated by this node spawner.
+		</member>
+	</members>
+	<constants>
+	</constants>
+</class>

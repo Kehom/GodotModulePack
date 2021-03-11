@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehInputData" inherits="Reference" version="3.2">
+	<brief_description>
+		Input data object.
+	</brief_description>
+	<description>
+		This is meant to be a "lightweight data object". Basically when input is gathered through the network system, an object of this class will be provided.
+		Internally this is used to provide the data for encoding before sending through the network. Then, when decoding the data an object of this class will be generated.
+		Normally speaking, when input data is required within the game logic, instead of polling through the normal [Input] class, request it from the [kehNetwork] singleton, which will then provide the proper object. Something like this:
+		[codeblock]
+		var input: kehInputData = kehNetwork.get_input(PLAYER_ID)
+		[/codeblock]
+		Later on this object can be used to retrieve input state. Note that this will only be possible if the required data got properly registered. Typically this is done through:
+		[codeblock]
+		kehNetwork.register_action("INPUT_MAP_NAME", IS_ANALOG)
+		[/codeblock]
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_analog" qualifiers="const">
+			<return type="float">
+			</return>
+			<argument index="0" name="name" type="String">
+			</argument>
+			<description>
+				Retrieve input analog data (which should be in the range [0..1]) given its mapped name.
+			</description>
+		</method>
+		<method name="get_custom_bool" qualifiers="const">
+			<return type="bool">
+			</return>
+			<argument index="0" name="name" type="String">
+			</argument>
+			<description>
+				Retrieve a custom input boolean value given its name.
+			</description>
+		</method>
+		<method name="get_custom_vec2" qualifiers="const">
+			<return type="Vector2">
+			</return>
+			<argument index="0" name="name" type="String">
+			</argument>
+			<description>
+				Retrieve a custom input [Vector2] value given its name.
+			</description>
+		</method>
+		<method name="get_custom_vec3" qualifiers="const">
+			<return type="Vector3">
+			</return>
+			<argument index="0" name="name" type="String">
+			</argument>
+			<description>
+				Retrieve a custom input [Vector3] value given its name.
+			</description>
+		</method>
+		<method name="get_mouse_relative" qualifiers="const">
+			<return type="Vector2">
+			</return>
+			<description>
+				Retrieve mouse relative information (which should be a [Vector2] value). Note that this will only work if the [i]Use Mouse Relative[/i] option is enabled within the Project Settings.
+			</description>
+		</method>
+		<method name="get_mouse_speed" qualifiers="const">
+			<return type="Vector2">
+			</return>
+			<description>
+				Retrieve mouse speed information (which should be a [Vector2] value). Note that this will only work if the [i]Use Mouse Speed[/i] option is enabled within the Project Settings.
+			</description>
+		</method>
+		<method name="is_pressed" qualifiers="const">
+			<return type="bool">
+			</return>
+			<argument index="0" name="name" type="String">
+			</argument>
+			<description>
+				Returns true if the given input map name is in the pressed state.
+			</description>
+		</method>
+		<method name="set_custom_bool">
+			<return type="void">
+			</return>
+			<argument index="0" name="name" type="String">
+			</argument>
+			<argument index="1" name="val" type="bool">
+			</argument>
+			<description>
+				When custom input boolean data is required it must be manually set. This function is used for that.
+			</description>
+		</method>
+		<method name="set_custom_vec2">
+			<return type="void">
+			</return>
+			<argument index="0" name="name" type="String">
+			</argument>
+			<argument index="1" name="val" type="Vector2">
+			</argument>
+			<description>
+				When custom input [Vector2] data is required it must be manually set. This function is used for that.
+			</description>
+		</method>
+		<method name="set_custom_vec3">
+			<return type="void">
+			</return>
+			<argument index="0" name="name" type="String">
+			</argument>
+			<argument index="1" name="val" type="Vector3">
+			</argument>
+			<description>
+				When custom input [Vector3] data is required it must be manually set. This function is used for that.
+			</description>
+		</method>
+	</methods>
+	<constants>
+	</constants>
+</class>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehNetNodeSpawner" inherits="Reference" version="3.2">
+	<brief_description>
+		Base class for node spawners.
+	</brief_description>
+	<description>
+		During the replication, the network system will most likely need to spawn nodes representing the various entities within the game world.
+		To help with this task node spawners can be registered within the network system. Those spawners must be classes derived from this one.
+		A derived class must implement a function named [i]spawn()[/i] and it must return the spawned node.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="spawn" qualifiers="virtual">
+			<return type="Node">
+			</return>
+			<description>
+				During the replication the networking system will call this function whenever a game node must be spawned.
+			</description>
+		</method>
+	</methods>
+	<constants>
+	</constants>
+</class>

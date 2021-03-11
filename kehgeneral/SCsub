@@ -1,0 +1,26 @@
+Import('env')
+
+src_files = [
+   "encdecbuffer.cpp",
+   "quantize.cpp",
+   "register_types.cpp"
+]
+
+
+if ARGUMENTS.get('keh_shared', 'no') == 'yes':
+   module_env = env.Clone()
+   module_env.Append(CCFLAGS=['-O2'])
+   module_env.Append(CCFLAGS=['-fPIC'])
+   module_env['LIBS'] = []
+   
+   shared_lib = module_env.SharedLibrary(target='#bin/keh_general', source=src_files)
+   shared_lib_shim = shared_lib[0].name.rsplit('.', 1)[0]
+
+   env.Append(LIBS=[shared_lib_shim])
+   env.Append(LIBPATH=['#bin'])
+
+else:
+   env.add_source_files(env.modules_sources, src_files)
+
+
+#env.add_source_files(env.modules_sources, "*.cpp")

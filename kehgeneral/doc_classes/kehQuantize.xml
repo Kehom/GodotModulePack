@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehQuantize" inherits="Reference" version="3.2">
+	<brief_description>
+		Offers means to quantize floating point numbers into smaller number of bits.
+	</brief_description>
+	<description>
+		Floating point quantization is a lossy process, although it can be very useful in order to compress the amount of data to be send through a networked game.
+		Besides being able to compress single floating point values, there are a few functions that can be used to also compress rotation quaternions using the smallest three method.
+		Note that this class is exposed as a singleton so there is no need to create an instance of it and can be directly used, like this:
+		[codeblock]
+		# Quantize a floating point in the range [0..1] using 8 bits
+		var quantized: int = kehQuantize.quantize_unit_float(some_float_variable, 8)
+		# Restore that number from the integer
+		var restored: float = kehQuantize.restore_unit_float(quantized, 8)
+		[/codeblock]
+	</description>
+	<tutorials>
+		<link>http://kehomsforge.com/tutorials/multi/GodotAddonPack</link>
+	</tutorials>
+	<methods>
+		<method name="compress_rotation_quat">
+			<return type="Dictionary">
+			</return>
+			<argument index="0" name="unit_quat" type="Quat">
+			</argument>
+			<argument index="1" name="numbits" type="int">
+			</argument>
+			<description>
+				Compress the given rotation quaternion (or unit [Quat]) using the specified number of bits ([i]numbits[/i]) per component using the smallest three method. The returned [Dictionary] contains 5 fields:
+				a, b, c -&gt; The smallest three components, quantized into the specified number of bits.
+				index -&gt; The index [0..3] of the largest component, which was dropped during the compression.
+				sig -&gt; The signal of the component that was dropped (1 if positive, -1 if negative).
+				Note: Signal is not exactly necessary but is provided just so if tehre is any desire to encode it somewhere it can be used.
+			</description>
+		</method>
+		<method name="compress_rquat_10bits">
+			<return type="int">
+			</return>
+			<argument index="0" name="q" type="Quat">
+			</argument>
+			<description>
+				Compress the given rotation quaternion using 10 bits per component. In this wrapper function, the data is automatically packed into a single integer value.
+				Because all bits are used for the data, the original signal of the entire quaternion may be "flipped". For rotations this is not a problem as q and -q represent the exact same orientation.
+			</description>
+		</method>
+		<method name="compress_rquat_15bits">
+			<return type="PoolIntArray">
+			</return>
+			<argument index="0" name="q" type="Quat">
+			</argument>
+			<description>
+				Compress the given rotation quaternion using 15 bits per component. In this wrapper function, the data is packed into two integer values, returned in a [PoolIntArray].
+				In memory this will still use the full range of the integer values, but the second entry in the array can safely discard 16 bits, which is basically the desired usage when sending the data through networks.
+				Note that in this case, using 32 bit + 16 bit leaves room for a single bit, which is used to encode the original quaternion signal.
+			</description>
+		</method>
+		<method name="compress_rquat_9bits">
+			<return type="int">
+			</return>
+			<argument index="0" name="q" type="Quat">
+			</argument>
+			<description>
+				Compress the given rotation quaternion using 9 bits per component. In this wrapper function, the data is packed into a single integer.
+				Because there is still some "room" (only 29 bits of the 32 are used), the signal of the original quaternion is also stored within the returned value.
+			</description>
+		</method>
+		<method name="quantize_float">
+			<return type="int">
+			</return>
+			<argument index="0" name="value" type="float">
+			</argument>
+			<argument index="1" name="minval" type="float">
+			</argument>
+			<argument index="2" name="maxval" type="float">
+			</argument>
+			<argument index="3" name="numbits" type="int">
+			</argument>
+			<description>
+				Quantize the floating point value that is in an arbitrary range ([minval..maxval]) using the specified number of bits.
+			</description>
+		</method>
+		<method name="quantize_unit_float">
+			<return type="int">
+			</return>
+			<argument index="0" name="value" type="float">
+			</argument>
+			<argument index="1" name="numbits" type="int">
+			</argument>
+			<description>
+				Quantize a unit floating point value (range [0..1]) using the specified number of bits.
+			</description>
+		</method>
+		<method name="restore_float">
+			<return type="float">
+			</return>
+			<argument index="0" name="quantized" type="int">
+			</argument>
+			<argument index="1" name="minval" type="float">
+			</argument>
+			<argument index="2" name="maxval" type="float">
+			</argument>
+			<argument index="3" name="numbits" type="int">
+			</argument>
+			<description>
+				Restore a floating point value that was originally quantized using [method quantize_float].
+				Note that [i]minval[/i], [i]maxval[/i] and [i]numbits[/i] must match those used to quantize the number.
+			</description>
+		</method>
+		<method name="restore_rotation_quat">
+			<return type="Quat">
+			</return>
+			<argument index="0" name="quant" type="Dictionary">
+			</argument>
+			<argument index="1" name="numbits" type="int">
+			</argument>
+			<description>
+				Restore a rotation quaternion originally compressed using [method compress_rotation_quat].
+				Note that the given dictionary is expected to be in the same format of the one returned by the quantization function. Also, the [i]numbits[/i] variable must match the one used during quantization.
+			</description>
+		</method>
+		<method name="restore_rquat_10bits">
+			<return type="Quat">
+			</return>
+			<argument index="0" name="arg0" type="int">
+			</argument>
+			<description>
+				Restore a rotation quaternion originally compressed using [method compress_rquat_10bits].
+			</description>
+		</method>
+		<method name="restore_rquat_15bits">
+			<return type="Quat">
+			</return>
+			<argument index="0" name="pack0" type="int">
+			</argument>
+			<argument index="1" name="pack1" type="int">
+			</argument>
+			<description>
+				Restore a rotation quaternion originally compressed using [method compress_rquat_15bits].
+				The compression function returns a [PoolIntArray] with two elements. To restore it is expected that [i]pack0[/i] holds element [i]0[/i] of that array (obviously [i]pack1[/i] element [i]1[/i]).
+			</description>
+		</method>
+		<method name="restore_rquat_9bits">
+			<return type="Quat">
+			</return>
+			<argument index="0" name="compressed" type="int">
+			</argument>
+			<description>
+				Restore a rotation quaternion originally compressed using [method compress_rquat_9bits].
+			</description>
+		</method>
+		<method name="restore_unit_float">
+			<return type="float">
+			</return>
+			<argument index="0" name="quantized" type="int">
+			</argument>
+			<argument index="1" name="numbits" type="int">
+			</argument>
+			<description>
+				Restore a unit float (range [0..1]) originally quantized using [method quantize_unit_float].
+				Note that [i]numbits[/i] must match the one used during quantization.
+			</description>
+		</method>
+	</methods>
+	<constants>
+	</constants>
+</class>

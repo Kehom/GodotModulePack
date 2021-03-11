@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehPlayerNode" inherits="Node" version="3.2">
+	<brief_description>
+		Node automatically created when a player is registered within the networking system.
+	</brief_description>
+	<description>
+		Holds necessary data for each connected player. Because this is a node it will be part of the tree hierarchy, more specifically as a child of the kehNetwork singleton.
+		Besides holding data, it's also where the input data is retrieved and replicated to.
+		Note that while it's OK to directly access objects of this class, manually creating them is absolutely unnecessary.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_custom_property" qualifiers="const">
+			<return type="Variant">
+			</return>
+			<argument index="0" name="pname" type="String">
+			</argument>
+			<argument index="1" name="defval" type="Variant" default="0">
+			</argument>
+			<description>
+				Retrieve the value of a custom property associated with this player.
+			</description>
+		</method>
+		<method name="reset_data">
+			<return type="void">
+			</return>
+			<description>
+				Reset input cache. Generally speaking there is no need to directly call this.
+			</description>
+		</method>
+		<method name="set_custom_property">
+			<return type="void">
+			</return>
+			<argument index="0" name="pname" type="String">
+			</argument>
+			<argument index="1" name="value" type="Variant">
+			</argument>
+			<description>
+				Set the value of a custom property associated with this player.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="net_id" type="int" setter="" getter="get_uid" default="1">
+			The network ID of the player "owning" this node.
+		</member>
+	</members>
+	<constants>
+	</constants>
+</class>

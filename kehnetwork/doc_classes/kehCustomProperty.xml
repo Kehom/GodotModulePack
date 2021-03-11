@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehCustomProperty" inherits="Reference" version="3.2">
+	<brief_description>
+		Class used internally by the networking system.
+	</brief_description>
+	<description>
+		The networking system allows "custom properties" to be created and associated with players. Those properties can be replicated and how this process will occur depends on the enum value used during the property registration.
+		Mostly, the registration occurs like this:
+		[codeblock]
+		kehNetwork.player_data.add_custom_property("PROPERTY_NAME", initial_default_property_value, kehCustomProperty.ServerOnly)
+		[/codeblock]
+		Note that the initial/default property value needs a clear variable type, which will be used to properly encode/decode the data during replication.
+		Custom properties are always replicated using the reliable channel and are useful for things that don't change often, like character class selection and so on.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+	</methods>
+	<constants>
+		<constant name="None" value="0" enum="ReplicationMode">
+			If the property is registered with this mode then it will not be replicated at all.
+		</constant>
+		<constant name="ServerOnly" value="1" enum="ReplicationMode">
+			In this mode the property is given only to the server.
+		</constant>
+		<constant name="ServerBroadcast" value="2" enum="ReplicationMode">
+			In this mode the property is given to the server first, which will then distribute to the other connected players.
+		</constant>
+	</constants>
+</class>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehSnapEntityBase" inherits="Reference" version="3.2">
+	<brief_description>
+		Base class for "descriptions" of snapshot entities.
+	</brief_description>
+	<description>
+		Objects derived from this class are meant to represent the state of the game nodes within the high level snapshots. Basically, properties within those classes are meant to hold the data that will be replicated through the network system.
+		Note that not all property types are supported, only the following ones:
+		* bool
+		* int
+		* float
+		* Vector2
+		* Rect2
+		* Quat
+		* Color
+		* Vector3
+		Derived classes [b]must[/b] implement the [code]apply_state(Node)[/code] function, which is basically the may way the replication system will take snapshot state and apply into the game nodes.
+		Declared properties also must be static typed in order for the system to properly determine how to encode and decode the data into low level snapshots. Such example comes:
+		[codeblock]
+		var position: Vector3
+		var orientation: Quat
+		[/codeblock]
+		The snippet bellow can be directly used as a starting point to create snapshot entity classes.
+		[codeblock]
+		extends kehSnapEntityBase
+		class_name TheEntityTypeNameClass
+
+		func _init() -&gt; void:
+		   # Initialize the entity data
+		   # pass
+		
+		func apply_state(to_node: Node) -&gt; void:
+		   # Apply the properties of this entity into the incoming node
+		   pass
+		[/codeblock]
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="apply_state" qualifiers="virtual">
+			<return type="void">
+			</return>
+			<argument index="0" name="node" type="Node">
+			</argument>
+			<description>
+				Function that must be created on derived classes. The system will automatically call this whenever the local state does not match that of the server.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="class_hash" type="int" setter="" getter="get_class_hash">
+			The "class hash" of the entity type.
+		</member>
+		<member name="id" type="int" setter="" getter="get_id">
+			Unique ID of the entity represented by an instance of this class. Basically this is the direct link of the spawned node and the state within the snapshot.
+		</member>
+	</members>
+	<constants>
+	</constants>
+</class>

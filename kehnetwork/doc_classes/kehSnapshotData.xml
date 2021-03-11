@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehSnapshotData" inherits="Reference" version="3.2">
+	<brief_description>
+		Snapshot management.
+	</brief_description>
+	<description>
+		There is no need to directly create instances of this as only one is necessary and is automatically created within the [kehNetwork] singleton node.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="add_pre_spawned_node">
+			<return type="void">
+			</return>
+			<argument index="0" name="eclass" type="Script">
+			</argument>
+			<argument index="1" name="uid" type="int">
+			</argument>
+			<argument index="2" name="node" type="Node">
+			</argument>
+			<description>
+				When nodes are part of the game level, the network system must know about them. Use this function to specify those nodes.
+			</description>
+		</method>
+		<method name="despawn_node">
+			<return type="void">
+			</return>
+			<argument index="0" name="eclass" type="Script">
+			</argument>
+			<argument index="1" name="uid" type="int">
+			</argument>
+			<description>
+				Tell the system to despawn a node from the game world given its [kehSnapEntityBase] script class and unique ID.
+			</description>
+		</method>
+		<method name="get_comparer_data" qualifiers="const">
+			<return type="String">
+			</return>
+			<argument index="0" name="eclass" type="Script">
+			</argument>
+			<description>
+				This is mostly used for debugging. Floating point replicated properties can be compared with approximations and this function can be used to tell if those comparers are properly assigned to those properties.
+			</description>
+		</method>
+		<method name="get_game_node" qualifiers="const">
+			<return type="Node">
+			</return>
+			<argument index="0" name="uid" type="int">
+			</argument>
+			<argument index="1" name="eclass" type="Script">
+			</argument>
+			<description>
+				Retrieve a game node given its unique ID and associated [kehSnapEntityBase] script class.
+			</description>
+		</method>
+		<method name="get_prediction_count" qualifiers="const">
+			<return type="int">
+			</return>
+			<argument index="0" name="uid" type="int">
+			</argument>
+			<argument index="1" name="eclass" type="Script">
+			</argument>
+			<description>
+				Tells how many times the specified entity have predicted simulation outcomes without being compared to incoming server data.
+			</description>
+		</method>
+		<method name="register_spawner">
+			<return type="void">
+			</return>
+			<argument index="0" name="eclass" type="Script">
+			</argument>
+			<argument index="1" name="chash" type="int">
+			</argument>
+			<argument index="2" name="spawner" type="kehNetNodeSpawner">
+			</argument>
+			<argument index="3" name="parent" type="Node">
+			</argument>
+			<argument index="4" name="esetup" type="FuncRef">
+			</argument>
+			<description>
+				Register a node spawner within the networking system.
+			</description>
+		</method>
+		<method name="spawn_node">
+			<return type="Node">
+			</return>
+			<argument index="0" name="eclass" type="Script">
+			</argument>
+			<argument index="1" name="uid" type="int">
+			</argument>
+			<argument index="2" name="chash" type="int">
+			</argument>
+			<description>
+				Requests the networking system to spawn a node within the game world.
+			</description>
+		</method>
+	</methods>
+	<constants>
+	</constants>
+</class>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehPlayerData" inherits="Reference" version="3.2">
+	<brief_description>
+		Holds player data ready for networked synchronization.
+	</brief_description>
+	<description>
+		Holds information that belongs to specific players in a way to facilitate the networked synchronization.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="add_custom_property">
+			<return type="void">
+			</return>
+			<argument index="0" name="pname" type="String">
+			</argument>
+			<argument index="1" name="default_value" type="Variant">
+			</argument>
+			<argument index="2" name="replicate" type="int" enum="kehCustomProperty.ReplicationMode" default="1">
+			</argument>
+			<description>
+				Register a custom player property within the network system. The default value is very important in here because its type will be used in order to determine the expected variable type during encoding and decoding.
+			</description>
+		</method>
+		<method name="get_custom_property" qualifiers="const">
+			<return type="Variant">
+			</return>
+			<argument index="0" name="pname" type="String">
+			</argument>
+			<argument index="1" name="defval" type="Variant" default="0">
+			</argument>
+			<description>
+				Retrieve the value of a registered custom property on the [b]local player[/b].
+				This provided as a shortcut to [code]kehNetwork.player_data.get_local_player().get_custom_property()[/code].
+			</description>
+		</method>
+		<method name="get_local_player" qualifiers="const">
+			<return type="kehPlayerNode">
+			</return>
+			<description>
+				Retrieve the [kehPlayerNode] of the [b]local player[/b].
+			</description>
+		</method>
+		<method name="get_player_count" qualifiers="const">
+			<return type="int">
+			</return>
+			<description>
+				Retrieve the number of players, including the local one.
+			</description>
+		</method>
+		<method name="get_pnode" qualifiers="const">
+			<return type="kehPlayerNode">
+			</return>
+			<argument index="0" name="pid" type="int">
+			</argument>
+			<description>
+				Retrieve the [kehPlayerNode] of the player with network ID [code]pid[/code], regardless if the specified ID is local or remote.
+			</description>
+		</method>
+		<method name="get_registered_players" qualifiers="const">
+			<return type="Array">
+			</return>
+			<argument index="0" name="include_local" type="bool" default="false">
+			</argument>
+			<description>
+				Obtain an array containing instances of [kehPlayerNode], corresponding to all registered players. If [code]include_local[/code] is true then the node corresponding to [b]local player[/b] will be included in this array as the [b]first[/b] element
+			</description>
+		</method>
+		<method name="get_remote_player" qualifiers="const">
+			<return type="kehPlayerNode">
+			</return>
+			<argument index="0" name="pid" type="int">
+			</argument>
+			<description>
+				Retrieve the [kehPlayerNode] corresponding the specified [b]remote player[/b].
+			</description>
+		</method>
+		<method name="set_custom_property">
+			<return type="void">
+			</return>
+			<argument index="0" name="pname" type="String">
+			</argument>
+			<argument index="1" name="value" type="Variant">
+			</argument>
+			<description>
+				Set the value of a custom player property on the [b]local player[/b].
+				This is provided as a shortcut to [code]kehNetwork.player_data.get_local_player().set_custom_property()[/code].
+			</description>
+		</method>
+	</methods>
+	<constants>
+	</constants>
+</class>

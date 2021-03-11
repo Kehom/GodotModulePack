@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="kehNetwork" inherits="Node" version="3.2">
+	<brief_description>
+		Main class of the networking system.
+	</brief_description>
+	<description>
+		All interaction of game logic with the network system will happen through this class, which is designed as a "singleton Node".
+		The vast majority of how to use this system is described within the linked tutorial corresponding to the GDScript addon. There are a few differences though, mentioned bellow.
+		The GDScript addon is designed in a way that creates an autoload script, which will be automatically initialized when starting the game. Such process was not exactly possible with a native implementation without errors. Because of that it is required that the [method initialize] be called once. The recommended here is that an autoload script is created and at its [code]_ready()[/code] function the mentioned method is called. Something like this:
+		[codeblock]
+		# some autoload script
+		func _ready():
+		   kehNetwork.initialize()
+		   # ... some other code.
+		[/codeblock]
+		Another difference that must be mentioned is related to the snapshot entities, those classes derived from [kehSnapEntityBase]. In the tutorial instances are directly created with [code]var some_entity = SnapEntityBase.new(ID, HASH)[/code]. That is possible because script classes can have non default constructos, which is not exactly the case for native classes exposed to script. In this case the solution is to use an intermediary function, which for this system is the [method create_snap_entity].
+		[codeblock]
+		var some_entity: kehSnapEntityBase: kehNetwork.create_snap_entity(id, hash)
+		[/codeblock]
+	</description>
+	<tutorials>
+		<link>http://kehomsforge.com/tutorials/multi/GodotAddonPack</link>
+	</tutorials>
+	<methods>
+		<method name="attach_event_handler">
+			<return type="void">
+			</return>
+			<argument index="0" name="code" type="int">
+			</argument>
+			<argument index="1" name="obj" type="Object">
+			</argument>
+			<argument index="2" name="funcname" type="String">
+			</argument>
+			<description>
+				Attach an event handler into a previously registered network event with [method register_event_type].
+			</description>
+		</method>
+		<method name="close_server">
+			<return type="void">
+			</return>
+			<argument index="0" name="message" type="String" default="&quot;Server is closing&quot;">
+			</argument>
+			<description>
+				This can be used to close the server. Any connected player will be kicked and the [i]message[/i] will be sent as the reason.
+			</description>
+		</method>
+		<method name="correct_in_snapshot">
+			<return type="void">
+			</return>
+			<argument index="0" name="entity" type="kehSnapEntityBase">
+			</argument>
+			<argument index="1" name="input" type="kehInputData">
+			</argument>
+			<description>
+				During the synchronization process, if an entity is corrected within a client, often local snapshots will also require corrections of the corresponding entity objects. This function is used for that.
+				The [i]input[/i] object is used to locate the proper snapshot.
+			</description>
+		</method>
+		<method name="create_server">
+			<return type="void">
+			</return>
+			<argument index="0" name="port" type="int">
+			</argument>
+			<argument index="1" name="server_name" type="String">
+			</argument>
+			<argument index="2" name="max_players" type="int">
+			</argument>
+			<description>
+				Attempt to create a server that will listen on the specified port and will accept a maximum of [i]max_players[/i] connected peers. Note that this value does not count local player as a connected one so if you want a game for 4 players then [i]max_players[/i] must be set to 3.
+			</description>
+		</method>
+		<method name="create_snap_entity" qualifiers="const">
+			<return type="kehSnapEntityBase">
+			</return>
+			<argument index="0" name="snap_entity_class" type="Script">
+			</argument>
+			<argument index="1" name="uid" type="int">
+			</argument>
+			<argument index="2" name="class_hash" type="int">
+			</argument>
+			<description>
+				Use this function to create an instance of a class derived from [kehSnapEntityBase].
+				[b]NOTE:[/b] The GDScript addon does not require this because script classes are allowed to have non default constructors. Native classes can't even provide optional arguments within the constructor when exposed to scripting, which is the case of the [kehSnapEntityBase].
+			</description>
+		</method>
+		<method name="disconnect_from_server">
+			<return type="void">
+			</return>
+			<description>
+				Forcefully disconnect from a server.
+			</description>
+		</method>
+		<method name="dispatch_credentials">
+			<return type="void">
+			</return>
+			<argument index="0" name="cred" type="Dictionary">
+			</argument>
+			<description>
+				Clients should use this function in order to send credentials to the server. Normally speaking this can be called from a function listening to the [signal credentials_requested] signal.
+			</description>
+		</method>
+		<method name="get_input" qualifiers="const">
+			<return type="kehInputData">
+			</return>
+			<argument index="0" name="pid" type="int">
+			</argument>
+			<description>
+				Request an input object from the networking system corresponding to the specified player.
+				If the caller is not meant to deal with the requested input then [i]null[/i] will be returned. As an example, if a client calls this requesting input belonging to another client, then null will be returned. The server, however, will always get something because it must simulate the game for every single client.
+			</description>
+		</method>
+		<method name="get_local_id" qualifiers="const">
+			<return type="int">
+			</return>
+			<description>
+				Return the network ID of the local player. This should be the same of [code]get_tree().get_network_unique_id()[/code].
+			</description>
+		</method>
+		<method name="get_snap_building_signature" qualifiers="const">
+			<return type="int">
+			</return>
+			<description>
+				Obtain the signature of the snapshot object that is being currently built. Note that you must call [method init_snapshot] once per loop iteration in order for this to be valid.
+			</description>
+		</method>
+		<method name="has_authority" qualifiers="const">
+			<return type="bool">
+			</return>
+			<description>
+				Returns true if the code is running on authority (server or single player). False otherwise.
+			</description>
+		</method>
+		<method name="init_snapshot">
+			<return type="void">
+			</return>
+			<description>
+				Within the main game scene, inside the [i]_physics_process()[/i], it is necessary to initialize a snapshot object meant to hold that frame's state at the end of the iteration.
+				Whenenver an entity is pushed into the "building snapshot", it will be into the one initialized by this function.
+				At the end of the loop the networking system will automatically finalize the snapshot and, if necessary, encode and send to clients. Besides that, it is at that moment that custom properties, events and input are synchronized.
+			</description>
+		</method>
+		<method name="initialize">
+			<return type="void">
+			</return>
+			<description>
+				This function must be called once at the beginning of the game instance in order to properly initialize the system.
+			</description>
+		</method>
+		<method name="is_connecting" qualifiers="const">
+			<return type="bool">
+			</return>
+			<description>
+				Returns true if there is currently a connection attempt in progress.
+			</description>
+		</method>
+		<method name="is_id_local" qualifiers="const">
+			<return type="bool">
+			</return>
+			<argument index="0" name="pid" type="int">
+			</argument>
+			<description>
+				Returns true if the provided network ID belongs to the local player.
+			</description>
+		</method>
+		<method name="is_single_player" qualifiers="const">
+			<return type="bool">
+			</return>
+			<description>
+				Returns true if currently the game is in single player.
+			</description>
+		</method>
+		<method name="join_server">
+			<return type="void">
+			</return>
+			<argument index="0" name="ip" type="String">
+			</argument>
+			<argument index="1" name="port" type="int">
+			</argument>
+			<description>
+				Attempt to connect to the server at the specified [i]ip[/i] which is listening on the given [i]port[/i].
+			</description>
+		</method>
+		<method name="kick_player">
+			<return type="void">
+			</return>
+			<argument index="0" name="id" type="int">
+			</argument>
+			<argument index="1" name="reason" type="String">
+			</argument>
+			<description>
+				Authority can use this to kick the player with specified network ID. The [i]reason[/i] will be sent to that player, which can display that as a message explaining why the kick happened.
+			</description>
+		</method>
+		<method name="notify_ready">
+			<return type="void">
+			</return>
+			<description>
+				Clients muts call this in order to tell the server that snapshot data can be sent.
+			</description>
+		</method>
+		<method name="register_action">
+			<return type="void">
+			</return>
+			<argument index="0" name="action" type="String">
+			</argument>
+			<argument index="1" name="is_analog" type="bool">
+			</argument>
+			<description>
+				In order for the network system to properly deal with input, it must be registered. Use this function to perform this task. Note that the specified action name must be part of the Input Map (check Project Settings -&gt; Input Map).
+			</description>
+		</method>
+		<method name="register_custom_action">
+			<return type="void">
+			</return>
+			<argument index="0" name="action" type="String">
+			</argument>
+			<argument index="1" name="is_analog" type="bool">
+			</argument>
+			<description>
+				Sometimes input will require custom data which is directly calculated from the actual input devices. This function allow registration of such kind of input data.
+			</description>
+		</method>
+		<method name="register_custom_input_vec2">
+			<return type="void">
+			</return>
+			<argument index="0" name="vec_name" type="String">
+			</argument>
+			<description>
+				Sometimes input will require custom data which is directly calculated from the actual input devices. This function allow registration of such kind of input data.
+			</description>
+		</method>
+		<method name="register_custom_input_vec3">
+			<return type="void">
+			</return>
+			<argument index="0" name="vec_name" type="String">
+			</argument>
+			<description>
+				Sometimes input will require custom data which is directly calculated from the actual input devices. This function allow registration of such kind of input data.
+			</description>
+		</method>
+		<method name="register_event_type">
+			<return type="void">
+			</return>
+			<argument index="0" name="code" type="int">
+			</argument>
+			<argument index="1" name="param_types" type="Array">
+			</argument>
+			<description>
+				Network events must be registered first. This function is meant to perform that. Note that the [i]param_types[/i] array must be holding [code]TYPE_*[/code] constants indicating the expected argument types given to handlers of the corresponding event type.
+			</description>
+		</method>
+		<method name="reset_input">
+			<return type="void">
+			</return>
+			<description>
+				Remove all registered input mappings from the internal network system.
+			</description>
+		</method>
+		<method name="reset_system">
+			<return type="void">
+			</return>
+			<description>
+				Call this everytime the main game scene exists tree, specially if going back to the main menu. This is somewhat required in order to be able to play the game again without errors.
+				Basically, this function will reset all internal buffers, incrementing signatures and so on.
+			</description>
+		</method>
+		<method name="send_chat_message">
+			<return type="void">
+			</return>
+			<argument index="0" name="msg" type="String">
+			</argument>
+			<argument index="1" name="send_to" type="int" default="0">
+			</argument>
+			<description>
+				Use this to send a chat message to the specified player. If the ID of the player is 0 then the message will first be given to the server which will then distribute the message to every other connected player.
+			</description>
+		</method>
+		<method name="send_event">
+			<return type="void">
+			</return>
+			<argument index="0" name="code" type="int">
+			</argument>
+			<argument index="1" name="params" type="Array">
+			</argument>
+			<description>
+				Emit a network event. The parameters within the array must match the variable types specified during registration with [method register_event_type].
+				At the end of the loop every emitted event will be encoded and sent in a single batch using the reliable channel.
+			</description>
+		</method>
+		<method name="set_action_enabled">
+			<return type="void">
+			</return>
+			<argument index="0" name="action" type="String">
+			</argument>
+			<argument index="1" name="enabled" type="bool">
+			</argument>
+			<description>
+				Set the enabled state of the specified input action.
+			</description>
+		</method>
+		<method name="set_dedicated_server_mode">
+			<return type="void">
+			</return>
+			<argument index="0" name="enable_dedicated" type="bool">
+			</argument>
+			<description>
+				Enable/Disable any kind of extra processsing (including Input) for the local player Node. Be very careful with this call because it will not make any kind of check if the local player actually corresponds to the server or not.
+				This should be called only when it's absolutely sure the instance is a dedicated server, meaning that the local player Node will never be used as an actual player.
+			</description>
+		</method>
+		<method name="set_use_mouse_relative">
+			<return type="void">
+			</return>
+			<argument index="0" name="use" type="bool">
+			</argument>
+			<description>
+				Dynamically enable/disable mouse relative encoding within the input objects. Note that it must match the server setting in order to properly work.
+				This will not change the project setting.
+			</description>
+		</method>
+		<method name="set_use_mouse_speed">
+			<return type="void">
+			</return>
+			<argument index="0" name="use" type="bool">
+			</argument>
+			<description>
+				Dynamically enable/disable mouse speed encoding within the input objects. Note that it must match the server setting in order to properly work.
+				This will not change the project setting.
+			</description>
+		</method>
+		<method name="snapshot_entity">
+			<return type="void">
+			</return>
+			<argument index="0" name="entity" type="kehSnapEntityBase">
+			</argument>
+			<description>
+				Use this function in order to push an entity into the snapshot that is currently being built.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="credential_checker" type="FuncRef" setter="set_credential_checker" getter="get_credential_checker">
+			This system allows credentials to be used in order to allow/block players attempting to join a server. In order to use said system this [FuncRef] must be set.
+			When a player attempts to join the server and this property is valid (in the server), the server will then request credentials from that client. At that point the client can then call [method dispatch_credentials].
+			Once the credentials arrive on the server, the function referenced by this property will be called, providing the player ID and the credentials Dictionary. This function must return a String. If the returned value is empty then the player will be allowed, otherwise the value will be used as reason to kick the client.
+		</member>
+		<member name="player_data" type="kehPlayerData" setter="" getter="get_player_data">
+			Provides access to network players (including the local one).
+		</member>
+		<member name="snapshot_data" type="kehSnapshotData" setter="" getter="get_snapshot_data">
+			Provides access to things related to the snapshot data.
+		</member>
+	</members>
+	<signals>
+		<signal name="chat_message_received">
+			<argument index="0" name="msg" type="String">
+			</argument>
+			<argument index="1" name="sender" type="int">
+			</argument>
+			<description>
+				This signal is emitted whenever a chat message arrives. The [code]sender[/code] argument is the ID of the player who sent the message.
+			</description>
+		</signal>
+		<signal name="credentials_requested">
+			<description>
+				This signal is only emitted on clients. When this happen the server is requesting credentials in order to either allow or block a connection attempt.
+			</description>
+		</signal>
+		<signal name="custom_property_changed">
+			<argument index="0" name="pid" type="int">
+			</argument>
+			<argument index="1" name="pname" type="String">
+			</argument>
+			<argument index="2" name="value" type="Variant">
+			</argument>
+			<description>
+				Whenever a custom property arrives through the synchronization process, this signal is emitted.
+				[code]pid[/code] is the network ID of the player owning the property.
+			</description>
+		</signal>
+		<signal name="disconnected">
+			<description>
+				When disconnected from the server this signal is emitted. Note that when kicked this will come after.
+			</description>
+		</signal>
+		<signal name="join_accepted">
+			<description>
+				When server accepts a connection attemp this signal will be given to that client.
+			</description>
+		</signal>
+		<signal name="join_fail">
+			<description>
+				When trying to connect to a server, there is a possibility the attempt will fail. In that case this signal will be emitted.
+			</description>
+		</signal>
+		<signal name="join_rejected">
+			<argument index="0" name="reason" type="String">
+			</argument>
+			<description>
+				If the server credential verification blocks the player, this signal will be given for that client.
+			</description>
+		</signal>
+		<signal name="kicked">
+			<argument index="0" name="reason" type="String">
+			</argument>
+			<description>
+				When authority kicks a player, this signal will be emitted before the disconnected.
+			</description>
+		</signal>
+		<signal name="ping_updated">
+			<argument index="0" name="pid" type="int">
+			</argument>
+			<argument index="1" name="value" type="float">
+			</argument>
+			<description>
+				Whenever the measure ping value is updated, this signal will be emitted with the measured value and the owning player network ID.
+			</description>
+		</signal>
+		<signal name="player_added">
+			<argument index="0" name="id" type="int">
+			</argument>
+			<description>
+				When a player joins a server and is properly registered through the networking system, this signal will be emitted. Note that registration happens on every connected player, meaning that every player will receive this event.
+			</description>
+		</signal>
+		<signal name="player_removed">
+			<argument index="0" name="id" type="int">
+			</argument>
+			<description>
+				When a player leaves the server and is properly unregistered through the networking system, this signal will be emitted. Note that unregistration happens on every connected player, meaning that every player will receive this event.
+			</description>
+		</signal>
+		<signal name="server_created">
+			<description>
+				When attempting to create a server, this signal will be emitted as soon as the process finishes with a success.
+			</description>
+		</signal>
+		<signal name="server_creation_failed">
+			<description>
+				When attempting to create a server, this signal will be emitted as soon as the process failes.
+			</description>
+		</signal>
+	</signals>
+	<constants>
+	</constants>
+</class>
