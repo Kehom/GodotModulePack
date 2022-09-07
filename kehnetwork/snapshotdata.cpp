@@ -75,7 +75,7 @@ void kehSnapshotData::register_entity_types()
          }
          else
          {
-            WARN_PRINTS(vformat("Skipping registration of class '%s' (%d). Reason: %s", cname, info->get_name_hash(), err))
+            WARN_PRINT(vformat("Skipping registration of class '%s' (%d). Reason: %s", cname, info->get_name_hash(), err))
          }
       }
    }
