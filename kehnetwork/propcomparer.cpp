@@ -44,7 +44,7 @@ struct TheComparer : public CProxy
 template <>
 struct TheComparer<float, true, false> : public CProxy
 {
-   bool compare(const Variant& var1, const Variant& var2) const { return Math::is_equal_approx(var1, var2); }
+   bool compare(const Variant& var1, const Variant& var2) const { return Math::is_equal_approx(float(var1), float(var2)); }
    String get_comp_name() const { return "float_auto"; }
 
    static Ref<TheComparer> create() { return memnew(TheComparer); }
