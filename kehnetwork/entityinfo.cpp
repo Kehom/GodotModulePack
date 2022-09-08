@@ -316,7 +316,7 @@ Node* kehEntityInfo::spawn_node(uint32_t uid, uint32_t chash)
    }
    else
    {
-      WARN_PRINTS(vformat("Could not retrieve spawner for entity '%s' with unique ID %d", m_namestr, uid));
+      WARN_PRINT(vformat("Could not retrieve spawner for entity '%s' with unique ID %d", m_namestr, uid));
    }
 
    return ret;
